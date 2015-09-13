@@ -1,0 +1,25 @@
+---
+# handler for logstash docker
+
+- name: restart logstash
+  template: src=logstash/logstash.conf dest={{ logstash_conf_path }}/logstash.conf mode=777
+  notify: restart logstash container
+  #owner=bin group=wheel mode=0644 
+
+- name: restart logstash container
+  docker:
+    name: logstash
+    image: logstash:1.5.0
+    state: restarted
+    volumes: 
+     - "{{ logstash_conf_path }}:/etc/logstash"
+     - "{{ logstash_log_path }}:/var/logstash"
+    ports: "{{ docker_logstash_ports }}"
+    command: logstash -f /etc/logstash/logstash.conf
+    # --log /var/log/logstash/logstash.log
+  notify: set logstash ip
+
+- name: set logstash ip
+  command: /usr/bin/docker inspect -f \{\{.NetworkSettings.IPAddress\}\} logstash
+  register: logstash_ip
+  notify: restart collectd

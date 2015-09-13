@@ -1,0 +1,8 @@
+---
+# defaults file for elk
+
+logstash_inputs: 
+logstash_filters: 
+logstash_outputs:
+
+docker_state: reloaded

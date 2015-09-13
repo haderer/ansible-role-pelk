@@ -1,0 +1,28 @@
+- hosts: logstash
+  connection: local
+  roles:
+    - role: elasticsearch
+    - role: kibana
+    #- role: packetbeat
+    - role: logstash
+      logstash_volumes:
+            - "/var/log:/var/log"
+      logstash_confs:
+        - "{{ logstash.nginx }}"
+
+
+      #logstash_files:
+#        syslog:
+#          path:
+#            - "/var/log/syslog"
+#            - "/var/log/messages"
+#        nginx_access:
+#          path:
+#            - "/var/log/nginx/access.log"
+#        nginx_error:
+#          path:
+#            - "/var/log/nginx/error.log"
+
+    #- role: elasticsearch
+    #- role: packetbeat
+    #- role: kibana

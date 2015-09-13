@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e          
+set -E 
+
+
+show_help(){
+
+	cat <<- _EOF_
+
+	 Usage: ${PROGNAME} [-h|--help ]
+
+	_EOF_
+}
+
+open() {
+	IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' ${1})
+	ADDR="http://${IP}:5601"
+	echo "Open browser to ${ADDR}"
+	x-www-browser $ADDR
+}
+
+debugs(){
+
+
+  x-terminal-emulator --full-screen  -e "${SCRIPT_DIR}/console-tmux.sh"	
+}
+
+debug(){
+  echo "Open terminal to log container ${1}"
+  sleep 1
+  gnome-terminal -geometry '$2' -T "Container $1" -e docker logs -f $1 & 
+}
+
+save(){
+
+  echo $*
+  elasticdump \
+    --input=http://localhost:9200/.kibana  \
+    --output=$ \
+    --type=data \
+    --searchBody='{"filter": { "or": [ {"type": {"value": "dashboard"}},{"type": {"value": "visualization"}},{"type": {"value": "search"}}  ] }}' > dump.json
+
+}
+
+up(){
+	
+	ansible-playbook -i ${SCRIPT_DIR}/inventories/local ${SCRIPT_DIR}/site.yml;
+}
+
+SCRIPT_DIR=`dirname "$0"`
+NARGS=-1; while [ "$#" -ne "$NARGS" ]; do NARGS=$#; case $1 in
+	# SWITCHES
+	-h|--help)      # This help message
+		show_help; exit 1; ;;
+	up)
+		up; shift;;
+	-d| --debug)
+		debugs t1; shift ;;
+	-o| --open)
+		open pelk-kibana; shift;;
+	-s| --save)
+		shift;save $@; shift;;
+	*)
+		break;
+esac; done
+
+#ansible-playbook -i ${SCRIPT_DIR}/inventories/local ${SCRIPT_DIR}/site.yml;
+#debug pelk-logstash 150x80+0+0
+#debug pelk-elasticsearch 150x80+1300+0
+#debug pelk-kibana 150x80+2600+0
+#debug pelk-packetbeat 150x80+0+0
+#open pelk-kibana

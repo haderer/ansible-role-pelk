@@ -1,0 +1,43 @@
+---
+# task file for elasticsearch
+
+- name: kibana | set default variable
+  set_fact: 
+    kibana_conf_path: "{{ docker_volumes_path }}/kibana/conf"
+    kibana_log_path:  "{{ docker_volumes_path }}/kibana/logs"
+    kibana_data_path:  "{{ docker_volumes_path }}/kibana/data"
+    kibana_build_path:  "{{ docker_volumes_path }}/kibana/build"
+
+- name: kibana | create conf and log directories
+  file: path={{ item }} state=directory mode=0777
+  with_items:
+    - "{{ kibana_log_path }}"
+    - "{{ kibana_conf_path }}"
+    - "{{ kibana_data_path }}"
+    - "{{ kibana_build_path }}"
+
+- name: kibana | copy dockerfile module
+  copy: 
+    src: kibana/ 
+    dest: "{{ kibana_build_path }}"
+
+- name: kibana | build docker image
+  docker_image:
+      name: "kibana"
+      path: "{{ kibana_build_path }}"
+      state: build
+
+- name: kibana | create configuration file
+  template:
+    src: kibana/kibana.yml
+    dest: "{{ kibana_conf_path }}/kibana.yml"
+
+- name: kibana | start docker container
+  docker:
+    name:  kibana
+    image: kibana
+    state: restarted
+    volumes: 
+     - "{{ kibana_conf_path }}:/opt/kibana/config"
+    ports: "{{ docker_kibana_ports }}"
+    command: /docker-entrypoint.sh kibana

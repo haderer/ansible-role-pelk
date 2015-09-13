@@ -1,0 +1,14 @@
+[logstash]
+127.0.0.1 ansible_connection=local
+127.0.0.1 ansible_connection=local
+
+[elasticsearch]
+127.0.0.1 ansible_connection=local
+
+[kibana]
+127.0.0.1 ansible_connection=local
+
+[local:children]
+logstash
+elasticsearch
+kibana

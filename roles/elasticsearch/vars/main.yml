@@ -1,0 +1,18 @@
+---
+# vars file for elasticsearch
+
+elasticsearch:
+  
+  version: 1.6.0
+  
+  docker:
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+      - "9400:9400"
+    volumes:
+      - "/usr/share/elasticsearch/data"
+      - "/usr/share/elasticsearch/config"
+
+  log: 
+    level: INFO

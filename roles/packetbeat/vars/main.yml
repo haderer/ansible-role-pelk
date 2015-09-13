@@ -1,0 +1,9 @@
+---
+packetbeat: 
+
+  interfaces: 
+    device: docker0
+
+  elastic: 
+    bind: 
+      port: 9200

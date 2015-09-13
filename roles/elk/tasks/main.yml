@@ -1,0 +1,14 @@
+---
+# tasks file for elk
+
+- include: elasticsearch.yml
+  when: "'elasticsearch' in {{ plugins }}"
+
+- include: logstash.yml
+  when: "'logstash' in {{ plugins }}"
+
+- include: collectd.yml
+  when: "'collectd' in {{ plugins }}"
+
+- include: kibana.yml
+  when: "'kibana' in {{ plugins }}"

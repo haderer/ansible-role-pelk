@@ -1,0 +1,15 @@
+---
+
+- name: Set variables
+  set_fact: 
+    logstash_conf_path: "{{ docker_volumes_path }}/logstash/conf"
+    logstash_log_path:  "{{ docker_volumes_path }}/logstash/logs"
+
+# ip -f inet addr show dev wlan0 | sed -n 's/^ *inet *\([.0-9]*\).*/\1/p'
+
+- name: Create Logstash conf directory
+  file: path={{ item }} state=directory mode=0777
+  with_items:
+    - "{{ logstash_log_path }}"
+    - "{{ logstash_conf_path }}"
+  notify: restart logstash

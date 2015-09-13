@@ -1,0 +1,3 @@
+[submodule "library/packetbeat-dashboards"]
+	path = library/packetbeat-dashboards
+	url = https://github.com/elastic/packetbeat-dashboards.git

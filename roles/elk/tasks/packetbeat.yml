@@ -1,0 +1,18 @@
+---
+# tasks file for packetbeat
+
+- set_fact:
+    elastic_bind_ip: "{{ hostvars[groups['elasticsearch'][0]]['ansible_wlan0'].ipv4.address }}"
+    packetbeat_conf_path: "{{ docker_volumes_path }}/kibana/conf"
+    packetbeat_path:  "{{ docker_volumes_path }}/kibana/logs"
+    packetbeat_path:  "{{ docker_volumes_path }}/kibana/data"
+    packetbeat_path:  "{{ docker_volumes_path }}/kibana/build"
+  always: True
+
+
+
+
+#- name: create configuration file
+#  template:
+#    src:  packetbeat.conf
+#    dest: packetbeat.yml

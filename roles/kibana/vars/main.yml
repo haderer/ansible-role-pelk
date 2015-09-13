@@ -1,0 +1,16 @@
+---
+# vars file for kibana
+
+kibana:
+
+  version: 4.0.2
+
+  port: 5601
+
+  docker:
+    volumes: /opt/kibana/config
+    ports: 
+      - "5601:5601"
+
+  elasticsearch:
+    port: 9200

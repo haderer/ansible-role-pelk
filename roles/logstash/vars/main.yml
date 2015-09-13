@@ -1,0 +1,37 @@
+---
+# vars file for logstash
+
+logstash_volumes:
+  - "/etc/logstash/conf"
+
+logstash:
+
+  version: 1.5.0-1
+
+  nginx:
+    name: nginx
+    input: >
+      file { 
+        sincedb_path=> "/tmp/.sincedb"
+        path => "/var/log/nginx/access.log"
+        type => "nginx_access"
+      }
+    filter: >
+      if [type] == "nginx_access" {
+          
+          grok {
+            match => { "message" => "%{NGINXACCESS}" }
+          }
+          geoip {
+            source => "clientip"
+            add_field => { "foo" => "Hello world, from kikou" }
+          }
+      }
+        
+    pattern: |
+      NGUSERNAME [a-zA-Z\.\@\-\+_%]+
+      NGUSER %{NGUSERNAME}
+      NGINXACCESS %{IPORHOST:clientip} %{NGUSER:ident} %{NGUSER:auth} \[%{HTTPDATE:timestamp}\] "%{WORD:verb} %{URIPATHPARAM:request} HTTP/%{NUMBER:httpversion}" %{NUMBER:response} (?:%{NUMBER:bytes}|-) (?:"(?:%{URI:referrer}|-)"|%{QS:referrer}) %{QS:agent}
+
+  elasticsearch:  
+    port: 9200

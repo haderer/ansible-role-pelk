@@ -1,0 +1,22 @@
+- name: collectd | install collectd
+  apt: name={{ item }} state=present
+  with_items:
+    - collectd
+    - collectd-utils
+
+- set_fact: 
+    logstash_inputs_collectd: |
+       udp { 
+                port => 25826
+                buffer_size => 1452
+                codec => collectd { }
+                type => "collectd"
+              }
+
+- set_fact:
+    logstash_inputs: "{{ logstash_inputs }} {{ logstash_inputs_collectd }}"
+
+- name: collectd | update logstash configuration
+  template: src=collectd/collectd.conf dest=/etc/collectd/collectd.conf 
+  notify: restart logstash
+

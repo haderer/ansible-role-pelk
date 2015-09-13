@@ -1,0 +1,44 @@
+---
+# tasks file for elasticsearch
+
+- set_fact:
+    elasticsearch_build_path:  "{{ docker_volumes_path }}/elasticsearch/build"
+
+- name: create build tmp directories
+  file: 
+    path: "{{ item }}"
+    state: directory
+    mode: 0777
+  with_items:
+    - "{{ elasticsearch_build_path }}"
+
+- name: copy dockerfile
+  template: 
+    src: "{{ item }}" 
+    dest: "{{ elasticsearch_build_path }}"
+  with_items:
+    - Dockerfile
+    - logging.yml
+    - elasticsearch.yml
+    - entrypoint.sh
+
+- name: build docker image
+  docker_image:
+      name: pelk-elasticsearch
+      path: "{{ elasticsearch_build_path }}"
+      state: build
+
+- name: start docker container
+  docker:
+    name:  pelk-elasticsearch
+    image: pelk-elasticsearch
+    state: restarted
+    volumes: "{{ elasticsearch.docker.volumes }}"
+    ports: "{{ elasticsearch.docker.ports }}"
+
+- name: delete build tmp directories
+  file: 
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ elasticsearch_build_path }}"

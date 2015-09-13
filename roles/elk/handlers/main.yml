@@ -1,0 +1,8 @@
+---
+# handlers file for elk
+
+- include: logstash.yml
+  when: "'logstash' in {{ plugins }}"
+
+- include: collectd.yml
+  when: "'collectd' in {{ plugins }}"

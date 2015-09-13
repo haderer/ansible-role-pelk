@@ -1,0 +1,82 @@
+---
+# tasks file for logstash
+
+- name: setup build environment variable 
+  set_fact:
+    logstash_build_path:  "{{ docker_volumes_path }}/logstash/build"
+
+- set_fact:
+    logstash_elastic_bind_ip: "{{ hostvars[groups['elasticsearch'][0]]['ansible_eth0'].ipv4.address }}"
+  when: hostvars[groups['elasticsearch'][0]]['ansible_eth0'] is defined
+
+- set_fact:
+    logstash_elastic_bind_ip: "{{ hostvars[groups['elasticsearch'][0]]['ansible_wlan0'].ipv4.address }}"
+  when: hostvars[groups['elasticsearch'][0]]['ansible_wlan0'] is defined
+
+
+- name: create build tmp directories
+  file: path={{ item }} state=directory mode=0777
+  with_items:
+    - "{{ logstash_build_path }}"
+
+- name: copy docker build files
+  template: 
+    src: "{{ item }}" 
+    dest: "{{ logstash_build_path }}"
+  with_items:
+    - Dockerfile
+    - entrypoint.sh
+    - patterns/nginx
+
+
+- debug:
+    msg: "{{ logstash_elastic_bind_ip }}"
+
+- name: copy logstash input configuration files
+  template: 
+    src: input.conf.template
+    dest: "{{ logstash_build_path }}/{{ item.name }}-input.conf"
+  with_items: "{{ logstash_confs }}"
+  when: item.input is defined
+
+
+- name: copy logstash filter configuration files
+  template: 
+    src: filter.conf.template
+    dest: "{{ logstash_build_path }}/{{ item.name }}-filter.conf"
+  with_items: "{{ logstash_confs }}"
+  when: item.filter is defined
+
+
+- name: copy logstash pattern configuration files
+  template: 
+    src: pattern.template
+    dest: "{{ logstash_build_path }}/{{ item.name }}.pattern"
+  with_items: logstash_confs
+  when: item.pattern is defined
+
+- name: copy logstash output configuration files
+  template: 
+    src: "{{ item }}" 
+    dest: "{{ logstash_build_path }}/{{ item }}"
+  with_items: 
+    - elastic-output.conf
+    - stdout-output.conf
+
+- name: build docker image
+  docker_image:
+      name: "pelk-logstash"
+      path: "{{ logstash_build_path }}"
+      state: build
+
+- name: start docker container
+  docker:
+    name:  pelk-logstash
+    image: pelk-logstash
+    state: reloaded
+    volumes: "{{ logstash_volumes }}"
+
+- name: clean tmp directory
+  file: 
+    path: "{{ logstash_build_path }}"
+    state: absent
