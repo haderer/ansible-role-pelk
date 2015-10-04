@@ -1,0 +1,13 @@
+---
+
+- name: start topbeat container
+  docker:
+    name: pelk-topbeat
+    image: pelk-topbeat
+    state: reloaded
+    privileged: yes
+    links: 
+      - "pelk-elasticsearch:elasticsearch"
+    volumes:
+      - "/sys:/sys:ro"
+      #- "/proc:/proc:ro"

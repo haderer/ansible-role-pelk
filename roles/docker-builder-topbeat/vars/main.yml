@@ -1,0 +1,4 @@
+---
+
+topbeat_build_path: '/tmp/docker-build/topbeat'
+topbeat_version: 1.0.0-beta3_amd64

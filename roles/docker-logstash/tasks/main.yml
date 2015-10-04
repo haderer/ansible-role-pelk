@@ -1,0 +1,60 @@
+---
+
+- name: delete old configuration files
+  file: 
+    path: "{{ config_path }}/logstash"
+    state: absent
+
+- name: delete old configuration files
+  file: 
+    path: "{{ config_path }}/{{ item }}"
+    state: directory
+    mode: 0777
+  with_items:
+    - "logstash/config"
+    - "logstash/patterns"
+
+- name: create input logstash configurations
+  template:
+    src: input.template.conf
+    dest: "{{ config_path }}/logstash/config/{{ item.name }}-input.conf"
+  with_items: 
+    - "{{ logstash_configurations }}"
+  when: item.input is defined
+
+- name: create output logstash configurations
+  template:
+    src: output.template.conf
+    dest: "{{ config_path }}/logstash/config/{{ item.name }}-output.conf"
+  with_items: 
+    - "{{ logstash_configurations }}"
+  when: item.output is defined
+
+- name: create filter logstash configurations
+  template:
+    src: filter.template.conf
+    dest: "{{ config_path }}/logstash/config/{{ item.name }}-filter.conf"
+  with_items: 
+    - "{{ logstash_configurations }}"
+  when: item.filter is defined
+
+- name: create pattern logstash configurations
+  template:
+    src: pattern.template.pattern
+    dest: "{{ config_path }}/logstash/patterns/{{ item.name }}.pattern"
+  with_items: 
+    - "{{ logstash_configurations }}"
+  when: item.pattern is defined
+
+- name: start logstash container
+  docker: 
+    name: logstash
+    image: logstash:2.0
+    state: reloaded
+    volumes:
+      - "{{ config_path }}/logstash/config:/opt/logstash/config.d"
+      - "{{ config_path }}/logstash/patterns:/opt/logstash/patterns"
+    command: "logstash --config /opt/logstash/config.d -w 1"
+    ports: 
+      - "4560:4560" 
+      - "4560:4560/udp" 

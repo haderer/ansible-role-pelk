@@ -1,0 +1,10 @@
+---
+
+- name: start packetbeat container
+  docker:
+    name: pelk-packetbeat
+    image: pelk-packetbeat
+    state: reloaded
+    #links: 
+    #  - "pelk-elasticsearch:elasticsearch"
+    net: host

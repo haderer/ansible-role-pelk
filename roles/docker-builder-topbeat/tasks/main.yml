@@ -1,0 +1,27 @@
+---
+# tasks file for packetbeat
+
+- name: clean tmp directory
+  file: 
+    path: "{{ topbeat_build_path }}"
+    state: absent
+
+- name: create build tmp directories
+  file: path={{ item }} state=directory mode=0777
+  with_items:
+    - "{{ topbeat_build_path }}"
+
+- name: copy dockerfile
+  template: 
+    src: "{{ item }}" 
+    dest: "{{ topbeat_build_path }}"
+  with_items:
+    - Dockerfile
+    - topbeat-entrypoint.sh
+    - topbeat.yml
+
+- name: build docker image
+  docker_image:
+      name: "pelk-topbeat"
+      path: "{{ topbeat_build_path }}"
+      state: build

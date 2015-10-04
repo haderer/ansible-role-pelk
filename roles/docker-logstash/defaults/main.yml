@@ -1,0 +1,33 @@
+---
+
+logstash_input: ' input { tcp {  port => 4560 }} '
+
+logstash_output: 'output { stdout { codec => rubydebug } }'
+
+
+logstash_nginx:
+    name: nginx
+
+    input: >
+      file { 
+        sincedb_path=> "/tmp/.sincedb"
+        path => "/var/log/nginx/access.log"
+        type => "nginx_access"
+      }
+
+    filter: >
+      if [type] == "nginx_access" {
+          
+          grok {
+            match => { "message" => "%{NGINXACCESS}" }
+          }
+          geoip {
+            source => "clientip"
+            add_field => { "foo" => "Hello world, from kikou" }
+          }
+      }
+
+    pattern: |
+      NGUSERNAME [a-zA-Z\.\@\-\+_%]+
+      NGUSER %{NGUSERNAME}
+      NGINXACCESS %{IPORHOST:clientip} %{NGUSER:ident} %{NGUSER:auth} \[%{HTTPDATE:timestamp}\] "%{WORD:verb} %{URIPATHPARAM:request} HTTP/%{NUMBER:httpversion}" %{NUMBER:response} (?:%{NUMBER:bytes}|-) (?:"(?:%{URI:referrer}|-)"|%{QS:referrer}) %{QS:agent}

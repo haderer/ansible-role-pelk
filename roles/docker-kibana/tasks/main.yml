@@ -1,0 +1,15 @@
+---
+
+# from docker hub: https://hub.docker.com/_/kibana/
+# port 5601
+# env -e ELASTICSEARCH_URL=http://some-elasticsearch:9200
+
+- name: start kibana container
+  docker:
+    name: pelk-kibana
+    image: kibana:4.2.0
+    state: reloaded
+    ports:
+      - "5601:5601"
+    links: 
+      - "pelk-elasticsearch:elasticsearch"

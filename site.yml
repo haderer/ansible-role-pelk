@@ -1,28 +1,19 @@
-- hosts: logstash
+- hosts: localhost
   connection: local
   roles:
-    - role: elasticsearch
-    - role: kibana
-    #- role: packetbeat
-    - role: logstash
-      logstash_volumes:
-            - "/var/log:/var/log"
-      logstash_confs:
-        - "{{ logstash.nginx }}"
+    # - docker-builder-packetbeat
+    # - docker-builder-topbeat
+     - role: docker-logstash
 
-
-      #logstash_files:
-#        syslog:
-#          path:
-#            - "/var/log/syslog"
-#            - "/var/log/messages"
-#        nginx_access:
-#          path:
-#            - "/var/log/nginx/access.log"
-#        nginx_error:
-#          path:
-#            - "/var/log/nginx/error.log"
-
-    #- role: elasticsearch
-    #- role: packetbeat
-    #- role: kibana
+       logstash_configurations: 
+         - "{{ logstash_nginx }}"
+         - name: logback
+           input: |
+              tcp {
+                codec => json_lines
+                port => 4560
+              }
+           output : > 
+              stdout {
+                codec => rubydebug
+              }

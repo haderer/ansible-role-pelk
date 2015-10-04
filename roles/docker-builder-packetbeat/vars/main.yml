@@ -1,0 +1,4 @@
+---
+
+packetbeat_build_path: '/tmp/docker-build/packetbeat'
+packetbeat_version: 1.0.0-beta3_amd64

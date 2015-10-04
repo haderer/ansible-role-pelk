@@ -1,0 +1,18 @@
+---
+# from docker hub: https://hub.docker.com/_/elasticsearch
+# volume /usr/share/elasticsearch/data 
+# config /usr/share/elasticsearch/config
+# port 9200 9300
+
+- name: start elastisearch container
+  docker:
+    name: pelk-elasticsearch
+    image: elasticsearch:2.0
+    state: reloaded
+    command: "elasticsearch -Des.network.bind_host=0.0.0.0"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    expose:
+      - 9200
+      - 9300

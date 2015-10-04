@@ -5,11 +5,8 @@ set -E
 
 
 show_help(){
-
 	cat <<- _EOF_
-
 	 Usage: ${PROGNAME} [-h|--help ]
-
 	_EOF_
 }
 
@@ -21,8 +18,6 @@ open() {
 }
 
 debugs(){
-
-
   x-terminal-emulator --full-screen  -e "${SCRIPT_DIR}/console-tmux.sh"	
 }
 
@@ -33,7 +28,6 @@ debug(){
 }
 
 save(){
-
   echo $*
   elasticdump \
     --input=http://localhost:9200/.kibana  \
@@ -43,10 +37,11 @@ save(){
 
 }
 
-up(){
+up () {
 	
-	ansible-playbook -i ${SCRIPT_DIR}/inventories/local ${SCRIPT_DIR}/site.yml;
+  ansible-playbook -i ${SCRIPT_DIR}/inventories/local ${SCRIPT_DIR}/site.yml;
 }
+
 
 SCRIPT_DIR=`dirname "$0"`
 NARGS=-1; while [ "$#" -ne "$NARGS" ]; do NARGS=$#; case $1 in

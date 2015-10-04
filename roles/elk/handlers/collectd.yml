@@ -1,9 +1,0 @@
----
-# handler file for collectd
-
-- name: restart collectd
-  template: src=collectd/collectd.conf dest=/etc/collectd/collectd.conf 
-  notify: restart collectd service
-
-- name: restart collectd service
-  service: name=collectd state=restarted
